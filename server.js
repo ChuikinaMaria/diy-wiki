@@ -10,7 +10,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Uncomment this out once you've made your first route.
-// app.use(express.static(path.join(__dirname, 'client', 'build')));
+app.use(express.static(path.join(__dirname, 'client', 'build')));
 
 // some helper functions you can use
 async function readFile(filePath) {
@@ -37,9 +37,17 @@ function jsonError(res, message) {
   res.json({ status: 'error', message });
 }
 
-app.get('/', (req, res) => {
-  res.json({ wow: 'it works!' });
+app.get('/api/page/:slug', (req, res) => {
+  let slug = req.params('slug');
+  let filePath = slugToPath(slug);
+  let body = readFile(filePath);
+  res.json({status: 'ok', body: `${body}`});
 });
+
+app.get('/', (req, res) => {
+  res.json({ wow: 'Hello Masha!' });
+});
+
 
 // If you want to see the wiki client, run npm install && npm build in the client folder,
 // then comment the line above and uncomment out the lines below and comment the line above.
@@ -70,6 +78,10 @@ app.get('/', (req, res) => {
 // success response: {status:'ok', tag: 'tagName', pages: ['tagName', 'otherTagName']}
 //  file names do not have .md, just the name!
 // failure response: no failure response
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+});
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Wiki app is serving at http://localhost:${port}`));

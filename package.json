@@ -14,5 +14,16 @@
   },
   "devDependencies": {
     "nodemon": "2.0.2"
-  }
+  },
+  "description": "A nifty little site that allows you to create, read, and update pages in a markdown wiki.  We've provided most of the code for you. All you need to do is write the code that sits between the server and your file system, reading, writing and updating files saved on your computer.",
+  "main": "server.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ChuikinaMaria/diy-wiki.git"
+  },
+  "author": "",
+  "bugs": {
+    "url": "https://github.com/ChuikinaMaria/diy-wiki/issues"
+  },
+  "homepage": "https://github.com/ChuikinaMaria/diy-wiki#readme"
 }
