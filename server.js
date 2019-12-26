@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const path = require('path');
-const util = require('util');
 const fs = require('fs').promises;
 
 const app = express();
@@ -10,66 +9,84 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Uncomment this out once you've made your first route.
-// app.use(express.static(path.join(__dirname, 'client', 'build')));
+app.use(express.static(path.join(__dirname, 'client', 'build')));
 
-// some helper functions you can use
-async function readFile(filePath) {
-  return await fs.readFile(filePath, 'utf-8');
-}
-async function writeFile(filePath) {
-  return await fs.writeFile(filePath, 'utf-8');
-}
-async function readDir(dirPath) {
-  return await fs.readDir(dirPath);
-}
-
-// some more helper functions
-const DATA_DIR = 'data';
-const TAG_RE = /#\w+/g;
-function slugToPath(slug) {
-  const filename = `${slug}.md`;
-  return path.join(DATA_DIR, filename);
-}
-function jsonOK(res, data) {
-  res.json({ status: 'ok', ...data });
-}
-function jsonError(res, message) {
-  res.json({ status: 'error', message });
-}
-
-app.get('/', (req, res) => {
-  res.json({ wow: 'it works!' });
+app.get('/api/page/:slug', async (req, res) => {
+  const filePath = path.join('data', `${req.params.slug}.md`);
+  try {
+    let text = await fs.readFile(filePath, 'utf-8');
+    res.json({ status: 'ok', body: text });
+  } catch {
+    res.json({ status: 'error', message: 'Page does not exist.' });
+  }
 });
 
-// If you want to see the wiki client, run npm install && npm build in the client folder,
-// then comment the line above and uncomment out the lines below and comment the line above.
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
-// });
+app.post('/api/page/:slug', async (req, res) => {
+  const filePath = path.join('data', `${req.params.slug}.md`);
+  try {
+    let text = req.body.body;
+    await fs.writeFile(filePath, text);
+    res.json({ status: 'ok' });
+  } catch {
+    res.json({ status: 'error', message: 'Could not write page.' });
+  }
+});
 
-// GET: '/api/page/:slug'
-// success response: {status: 'ok', body: '<file contents>'}
-// failure response: {status: 'error', message: 'Page does not exist.'}
+app.get('/api/pages/all', async (req, res) => {
+  let dir = await fs.readdir('data');
+  dir = dir.map(e => {
+    let arr = e.split('.');
+    return arr[0];
+  });
+  res.json({ status: 'ok', pages: dir });
+});
 
-// POST: '/api/page/:slug'
-// body: {body: '<file text content>'}
-// success response: {status: 'ok'}
-// failure response: {status: 'error', message: 'Could not write page.'}
+app.get('/api/tags/all', async (req, res) => {
+  let dir = await fs.readdir('data');
+  dir = dir.map(e => {
+    let filePath = path.join('data', e);
+    return filePath;
+  });
+  let str = '';
+  for (let i = 0; i < dir.length; i++) {
+    let text = await fs.readFile(dir[i], 'utf-8');
+    str = str.concat(text);
+  }
+  let tags = str.match(/#\w+/g);
+  tags = tags.map(e => e.slice(1));
+  for (let i = 0; i < tags.length; i++) {
+    let idx = tags.indexOf(tags[i], i + 1);
+    if (idx !== -1) {
+      tags.splice(idx, 1);
+    }
+  }
+  res.json({ status: 'ok', tags });
+});
 
-// GET: '/api/pages/all'
-// success response: {status:'ok', pages: ['fileName', 'otherFileName']}
-//  file names do not have .md, just the name!
-// failure response: no failure response
+app.get('/api/tags/:tag', async (req, res) => {
+  let tag = req.params.tag;
+  let dir = await fs.readdir('data');
+  dir = dir.map(e => {
+    let filePath = path.join('data', e);
+    return filePath;
+  });
+  let pages = [];
+  for (let i = 0; i < dir.length; i++) {
+    let text = await fs.readFile(dir[i], 'utf-8');
+    if (text.includes(tag)) {
+      let page = path.basename(dir[i], '.md');
+      pages.push(page);
+    }
+  }
+  res.json({ status: 'ok', tag: 'tagName', pages});
+});
 
-// GET: '/api/tags/all'
-// success response: {status:'ok', tags: ['tagName', 'otherTagName']}
-//  tags are any word in all documents with a # in front of it
-// failure response: no failure response
-
-// GET: '/api/tags/:tag'
-// success response: {status:'ok', tag: 'tagName', pages: ['tagName', 'otherTagName']}
-//  file names do not have .md, just the name!
-// failure response: no failure response
+app.get('/', (req, res) => {
+  res.json({ wow: 'hello' });
+});
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
+});
 
 const port = process.env.PORT || 5000;
 app.listen(port, () => console.log(`Wiki app is serving at http://localhost:${port}`));
