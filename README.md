@@ -1,22 +1,9 @@
+- Takes 'slug' from user's input, makes a path to access the file with the same name 
+in directory 'data' which is situated in the same directory as server.js, adds .md extension.
+- Asynchronously tries to read file using 'utf-8', if succeeds - sends text as a body of json responce,
+otherwise it means there is no page with this slug as a name, so returns error 'Page does not exist.'
 
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const path = require('path');
-const fs = require('fs').promises;
-
-const app = express();
-app.use(cors());
-app.use(bodyParser.json());
-
-// Uncomment this out once you've made your first route.
-app.use(express.static(path.join(__dirname, 'client', 'build')));
-
-// Takes 'slug' from user's input, makes a path to access the file with the same name 
-// in directory 'data' which is situated in the same directory as server.js, adds .md extension.
-// asynchronously tries to read file using 'utf-8', if succeeds - sends text as a body of json responce,
-// otherwise it means there is no page with this slug as a name, so returns error 'Page does not exist.'
-
+```
 app.get('/api/page/:slug', async (req, res) => {
   const filePath = path.join('data', `${req.params.slug}.md`);
   try {
@@ -26,6 +13,7 @@ app.get('/api/page/:slug', async (req, res) => {
     res.json({ status: 'error', message: 'Page does not exist.' });
   }
 });
+```
 
 // Requests user's input (req.body.body), writes it in a file with the slug name,
 // creates if it doesn't exist. Page sends again, because client side initiate previous
