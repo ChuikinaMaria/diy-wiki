@@ -15,10 +15,12 @@ app.get('/api/page/:slug', async (req, res) => {
 });
 ```
 
-// Requests user's input (req.body.body), writes it in a file with the slug name,
-// creates if it doesn't exist. Page sends again, because client side initiate previous
-// function for the file that was editid or created
+- Requests user's input (req.body.body), writes it in a file with the slug name,
+creates if it doesn't exist. 
+- Page sends again, because client side initiate previous
+function for the file that was editid or created
 
+```
 app.post('/api/page/:slug', async (req, res) => {
   const filePath = path.join('data', `${req.params.slug}.md`);
   try {
@@ -29,9 +31,10 @@ app.post('/api/page/:slug', async (req, res) => {
     res.json({ status: 'error', message: 'Could not write page.' });
   }
 });
+```
 
-// reads all names of the files in 'data' directory, removes '.md', sends list as a responce
-
+- reads all names of the files in 'data' directory, removes '.md', sends list as a responce
+```
 app.get('/api/pages/all', async (req, res) => {
   let dir = await fs.readdir('data');
   dir = dir.map(e => {
@@ -40,13 +43,12 @@ app.get('/api/pages/all', async (req, res) => {
   });
   res.json({ status: 'ok', pages: dir });
 });
-
-// reads all names of the files in 'data', makes full path to each of them,
-// reads content of each file, makes one string of all the content,
-// makes an array of all matches with regular expression /#\w+/g,
-// that is format of tags.
-// client side adds '#' to tags, so it removes it from original tag, not to double it.
-
+```
+- Reads all names of the files in 'data', makes full path to each of them.
+- Reads content of each file, makes one string of all the content.
+- Makes an array of all matches with regular expression /#\w+/g, that is format of tags.
+- Client side adds '#' to tags, so it removes it from original tag, not to double it.
+```
 app.get('/api/tags/all', async (req, res) => {
   let dir = await fs.readdir('data');
   dir = dir.map(e => {
@@ -68,13 +70,12 @@ app.get('/api/tags/all', async (req, res) => {
   }
   res.json({ status: 'ok', tags });
 });
-
-// takes :tag from req.params.tag
-// reads every file in 'data', 
-// if file includes tag in it's content,
-// removes dir and '.md' from pathfile to get page's name
-// adds page's name to array of required pages.
-
+```
+- takes :tag from req.params.tag
+- reads every file in 'data', 
+- if file includes tag in it's content, removes 'dir' and '.md' from pathfile to get page's name
+- adds page's name to array of required pages.
+```
 app.get('/api/tags/:tag', async (req, res) => {
   let tag = req.params.tag;
   let dir = await fs.readdir('data');
@@ -92,14 +93,4 @@ app.get('/api/tags/:tag', async (req, res) => {
   }
   res.json({ status: 'ok', tag: 'tagName', pages});
 });
-
-app.get('/', (req, res) => {
-  res.json({ wow: 'hello' });
-});
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
-});
-
-const port = process.env.PORT || 5000;
-app.listen(port, () => console.log(`Wiki app is serving at http://localhost:${port}`));
-
+```
