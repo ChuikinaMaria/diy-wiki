@@ -21,17 +21,6 @@ app.get('/api/page/:slug', async (req, res) => {
   }
 });
 
-app.post('/api/page/:slug', async (req, res) => {
-  const filePath = path.join('data', `${req.params.slug}.md`);
-  try {
-    let text = req.body.body;
-    await fs.writeFile(filePath, text);
-    res.json({ status: 'ok' });
-  } catch {
-    res.json({ status: 'error', message: 'Could not write page.' });
-  }
-});
-
 app.get('/', (req, res) => {
   res.json({ wow: 'hello' });
 });
