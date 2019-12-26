@@ -41,28 +41,6 @@ app.get('/api/pages/all', async (req, res) => {
   res.json({ status: 'ok', pages: dir });
 });
 
-app.get('/api/tags/all', async (req, res) => {
-  let dir = await fs.readdir('data');
-  dir = dir.map(e => {
-    let filePath = path.join('data', e);
-    return filePath;
-  });
-  let str = '';
-  for (let i = 0; i < dir.length; i++) {
-    let text = await fs.readFile(dir[i], 'utf-8');
-    str = str.concat(text);
-  }
-  let tags = str.match(/#\w+/g);
-  tags = tags.map(e => e.slice(1));
-  for (let i = 0; i < tags.length; i++) {
-    let idx = tags.indexOf(tags[i], i + 1);
-    if (idx !== -1) {
-      tags.splice(idx, 1);
-    }
-  }
-  res.json({ status: 'ok', tags });
-});
-
 app.get('/', (req, res) => {
   res.json({ wow: 'hello' });
 });
