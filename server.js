@@ -32,15 +32,6 @@ app.post('/api/page/:slug', async (req, res) => {
   }
 });
 
-app.get('/api/pages/all', async (req, res) => {
-  let dir = await fs.readdir('data');
-  dir = dir.map(e => {
-    let arr = e.split('.');
-    return arr[0];
-  });
-  res.json({ status: 'ok', pages: dir });
-});
-
 app.get('/', (req, res) => {
   res.json({ wow: 'hello' });
 });
