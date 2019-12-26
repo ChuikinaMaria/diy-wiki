@@ -63,24 +63,6 @@ app.get('/api/tags/all', async (req, res) => {
   res.json({ status: 'ok', tags });
 });
 
-app.get('/api/tags/:tag', async (req, res) => {
-  let tag = req.params.tag;
-  let dir = await fs.readdir('data');
-  dir = dir.map(e => {
-    let filePath = path.join('data', e);
-    return filePath;
-  });
-  let pages = [];
-  for (let i = 0; i < dir.length; i++) {
-    let text = await fs.readFile(dir[i], 'utf-8');
-    if (text.includes(tag)) {
-      let page = path.basename(dir[i], '.md');
-      pages.push(page);
-    }
-  }
-  res.json({ status: 'ok', tag: 'tagName', pages});
-});
-
 app.get('/', (req, res) => {
   res.json({ wow: 'hello' });
 });
